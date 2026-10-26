@@ -2,14 +2,39 @@ import os
 import pytest
 from app import create_app
 from app.models import db, User, Resource, ActivityLog
-from app.config import Config
+from app.config import Config, normalize_database_url
+
+
+from urllib.parse import urlparse, urlunparse
+
+
+def _resolve_test_db_uri() -> str:
+    """Resolve dedicated test database URI.
+
+    Priority:
+    1. Explicit TEST_DATABASE_URL.
+    2. Derived test database from DATABASE_URL (e.g. /resource_exchange -> /test_resource_exchange).
+    3. In-memory SQLite fallback.
+    Never returns or targets the development database.
+    """
+    test_url = os.getenv("TEST_DATABASE_URL")
+    if test_url:
+        return normalize_database_url(test_url)
+
+    dev_url = os.getenv("DATABASE_URL")
+    if dev_url:
+        parsed = urlparse(dev_url)
+        db_name = parsed.path.lstrip("/")
+        if db_name and not db_name.startswith("test_"):
+            return normalize_database_url(urlunparse(parsed._replace(path=f"/test_{db_name}")))
+        return normalize_database_url(dev_url)
+
+    return "sqlite:///:memory:"
 
 
 class TestConfig(Config):
     TESTING = True
-    # If running with real Postgres DB or testing SQLite fallback:
-    # Use existing DATABASE_URL or SQLite in-memory for testing isolation
-    SQLALCHEMY_DATABASE_URI = os.getenv("TEST_DATABASE_URL", os.getenv("DATABASE_URL"))
+    SQLALCHEMY_DATABASE_URI = _resolve_test_db_uri()
     SECRET_KEY = "test-secret-key-32-bytes-minimum-security-required-12345"
     S3_BUCKET_NAME = "test-sentinel-bucket"
     AWS_REGION = "us-east-1"

@@ -50,7 +50,7 @@ jobs:
 
       - name: Run Database Migrations
         env:
-          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test_resource_exchange
+          DATABASE_URL: postgresql+psycopg2://postgres:postgres@localhost:5432/test_resource_exchange
           FLASK_APP: run.py
           PYTHONPATH: .
         run: |
@@ -59,8 +59,8 @@ jobs:
       - name: Execute Pytest Suite
         env:
           PYTHONPATH: .
-          TEST_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test_resource_exchange
-          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test_resource_exchange
+          TEST_DATABASE_URL: postgresql+psycopg2://postgres:postgres@localhost:5432/test_resource_exchange
+          DATABASE_URL: postgresql+psycopg2://postgres:postgres@localhost:5432/test_resource_exchange
           SECRET_KEY: test-secret-key-32-bytes-minimum-security-required-12345
           S3_BUCKET_NAME: test-sentinel-bucket
           AWS_REGION: us-east-1
@@ -97,7 +97,7 @@ jobs:
       - name: Container Smoke Test (Liveness Check)
         run: |
           docker run -d --name smoke-sentinel -p 5000:5000 \
-            -e DATABASE_URL=postgresql://fake:fake@localhost:5432/fake \
+            -e DATABASE_URL=postgresql+psycopg2://fake:fake@localhost:5432/fake \
             -e SECRET_KEY=test-smoke-secret-key-32-chars-minimum \
             -e S3_BUCKET_NAME=test-smoke-bucket \
             -e AWS_REGION=us-east-1 \
