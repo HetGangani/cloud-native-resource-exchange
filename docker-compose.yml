@@ -1,0 +1,63 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: sentinel-web
+    ports:
+      - "5000:5000"
+    environment:
+      - DATABASE_URL=postgresql+psycopg2://postgres:postgres@db:5432/resource_exchange
+      - S3_BUCKET_NAME=cloudops-sentinel-resources
+      - AWS_REGION=us-east-1
+      - AWS_ENDPOINT_URL=http://minio:9000
+      - AWS_ACCESS_KEY_ID=sentineladmin
+      - AWS_SECRET_ACCESS_KEY=sentinel-local-password-123
+      - SECRET_KEY=sentinel-dev-secret-key-32-chars-minimum
+      - ADMIN_USERNAME=admin
+      - ADMIN_PASSWORD=admin123
+      - LOG_LEVEL=INFO
+      - AWS_PUBLIC_ENDPOINT_URL=http://localhost:9000
+    depends_on:
+      db:
+        condition: service_healthy
+      minio:
+        condition: service_started
+    restart: unless-stopped
+
+  db:
+    image: postgres:15-alpine
+    container_name: sentinel-postgres
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=resource_exchange
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d resource_exchange"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  minio:
+    image: minio/minio:latest
+    container_name: sentinel-minio
+    command: server /data --console-address ":9001"
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: sentineladmin
+      MINIO_ROOT_PASSWORD: sentinel-local-password-123
+    volumes:
+      - minio_data:/data
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  minio_data:
+
+

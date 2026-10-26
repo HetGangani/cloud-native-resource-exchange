@@ -1,0 +1,40 @@
+# Virtual environments & Cache
+venv/
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Environment files & Secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Terraform Local State & Variables
+.terraform/
+.terraform.lock.hcl
+*.tfstate
+*.tfstate.*
+*.tfvars
+*.tfvars.json
+
+# Kubernetes Local Secret Overrides
+k8s/*secret*.local.yaml
+
+# Testing & Coverage
+.coverage
+htmlcov/
+*.log
+
+# OS & Editor Metadata
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Distribution & Build
+*.egg-info/
+dist/
+build/

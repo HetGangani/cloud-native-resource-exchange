@@ -1,0 +1,1772 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CloudOps Sentinel — Digital Resource Exchange</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --bg-primary: #0a0e17;
+      --bg-surface: #111827;
+      --bg-surface-elevated: #1a2333;
+      --bg-glass: rgba(17, 24, 39, 0.85);
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --border-accent: rgba(56, 189, 248, 0.3);
+      --text-main: #f3f4f6;
+      --text-muted: #9ca3af;
+      --accent-cyan: #38bdf8;
+      --accent-indigo: #6366f1;
+      --accent-emerald: #10b981;
+      --accent-rose: #f43f5e;
+      --accent-amber: #f59e0b;
+      --gradient-brand: linear-gradient(135deg, #38bdf8 0%, #6366f1 100%);
+      --shadow-glow: 0 0 25px rgba(56, 189, 248, 0.15);
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 18px;
+      --transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: radial-gradient(circle at 10% 20%, #111d33 0%, var(--bg-primary) 70%);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    /* Ambient glow elements */
+    .ambient-glow {
+      position: fixed;
+      width: 500px;
+      height: 500px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(56, 189, 248, 0.08) 0%, transparent 70%);
+      top: -100px;
+      right: -100px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Header & Navigation */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: var(--bg-glass);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .nav-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 1rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+      color: var(--text-main);
+    }
+
+    .brand-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: var(--radius-sm);
+      background: var(--gradient-brand);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: var(--shadow-glow);
+    }
+
+    .brand-icon svg {
+      width: 22px;
+      height: 22px;
+      fill: #ffffff;
+    }
+
+    .brand-title {
+      font-weight: 800;
+      font-size: 1.2rem;
+      letter-spacing: -0.02em;
+      background: linear-gradient(135deg, #ffffff 40%, #94a3b8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .brand-subtitle {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--accent-cyan);
+      font-weight: 700;
+      display: block;
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .health-pill {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.25);
+      color: var(--accent-emerald);
+      padding: 0.35rem 0.8rem;
+      border-radius: 9999px;
+      font-size: 0.78rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 600;
+    }
+
+    .health-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent-emerald);
+      box-shadow: 0 0 8px var(--accent-emerald);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    .user-pill {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-subtle);
+      padding: 0.35rem 0.8rem;
+      border-radius: 9999px;
+      font-size: 0.8rem;
+      color: var(--text-main);
+    }
+
+    .role-badge {
+      display: inline-block;
+      padding: 0.1rem 0.45rem;
+      border-radius: 4px;
+      font-size: 0.68rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .role-admin {
+      background: rgba(244, 63, 94, 0.2);
+      color: var(--accent-rose);
+      border: 1px solid rgba(244, 63, 94, 0.35);
+    }
+
+    .role-user {
+      background: rgba(56, 189, 248, 0.15);
+      color: var(--accent-cyan);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      border-radius: var(--radius-sm);
+      font-weight: 600;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: var(--transition);
+      border: none;
+      text-decoration: none;
+    }
+
+    .btn-primary {
+      background: var(--gradient-brand);
+      color: #ffffff;
+      box-shadow: var(--shadow-glow);
+    }
+
+    .btn-primary:hover {
+      opacity: 0.92;
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text-main);
+      border: 1px solid var(--border-subtle);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--text-muted);
+      border: 1px solid var(--border-subtle);
+    }
+
+    .btn-outline:hover {
+      color: var(--text-main);
+      border-color: var(--text-muted);
+    }
+
+    .btn-approve {
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--accent-emerald);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      padding: 0.4rem 0.8rem;
+      font-size: 0.78rem;
+    }
+
+    .btn-approve:hover {
+      background: rgba(16, 185, 129, 0.25);
+    }
+
+    .btn-reject {
+      background: rgba(244, 63, 94, 0.15);
+      color: var(--accent-rose);
+      border: 1px solid rgba(244, 63, 94, 0.3);
+      padding: 0.4rem 0.8rem;
+      font-size: 0.78rem;
+    }
+
+    .btn-reject:hover {
+      background: rgba(244, 63, 94, 0.25);
+    }
+
+    .btn-delete {
+      background: rgba(239, 68, 68, 0.1);
+      color: #f87171;
+      border: 1px solid rgba(239, 68, 68, 0.25);
+      padding: 0.4rem 0.8rem;
+      font-size: 0.78rem;
+    }
+
+    .btn-delete:hover {
+      background: rgba(239, 68, 68, 0.2);
+    }
+
+    .btn-edit {
+      background: rgba(99, 102, 241, 0.15);
+      color: #818cf8;
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      padding: 0.4rem 0.8rem;
+      font-size: 0.78rem;
+    }
+
+    .btn-edit:hover {
+      background: rgba(99, 102, 241, 0.25);
+    }
+
+    /* Views Containers */
+    #authView {
+      display: none;
+      flex: 1;
+      align-items: center;
+      justify-content: center;
+      padding: 2.5rem 1.5rem;
+      position: relative;
+      z-index: 10;
+    }
+
+    #dashboardView {
+      display: none;
+      flex: 1;
+      max-width: 1200px;
+      margin: 0 auto;
+      width: 100%;
+      padding: 2rem 1.5rem;
+      position: relative;
+      z-index: 10;
+    }
+
+    /* Auth Card Styles */
+    .auth-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-accent);
+      border-radius: var(--radius-lg);
+      padding: 2.5rem;
+      max-width: 480px;
+      width: 100%;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), var(--shadow-glow);
+      position: relative;
+      animation: fadeInScale 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes fadeInScale {
+      from {
+        opacity: 0;
+        transform: scale(0.96) translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+    }
+
+    .auth-header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .auth-header-icon {
+      width: 52px;
+      height: 52px;
+      border-radius: var(--radius-md);
+      background: var(--gradient-brand);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1.25rem;
+      box-shadow: var(--shadow-glow);
+    }
+
+    .auth-header-icon svg {
+      width: 28px;
+      height: 28px;
+      fill: #ffffff;
+    }
+
+    .auth-title {
+      font-size: 1.6rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.5rem;
+    }
+
+    .auth-subtitle {
+      color: var(--text-muted);
+      font-size: 0.88rem;
+      line-height: 1.4;
+    }
+
+    /* Tabs inside Auth Card */
+    .auth-nav-tabs {
+      display: flex;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 4px;
+      margin-bottom: 1.75rem;
+      gap: 4px;
+    }
+
+    .auth-nav-tab {
+      flex: 1;
+      padding: 0.6rem;
+      background: transparent;
+      border: none;
+      border-radius: 6px;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+      text-align: center;
+    }
+
+    .auth-nav-tab.active {
+      background: var(--bg-surface-elevated);
+      color: #ffffff;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--border-subtle);
+    }
+
+    .redirect-banner {
+      background: rgba(56, 189, 248, 0.1);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      color: var(--accent-cyan);
+      padding: 0.75rem 1rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.82rem;
+      margin-bottom: 1.5rem;
+      display: none;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .redirect-banner svg {
+      width: 18px;
+      height: 18px;
+      fill: currentColor;
+      flex-shrink: 0;
+    }
+
+    /* Forms */
+    .form-group {
+      margin-bottom: 1.25rem;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 600;
+      margin-bottom: 0.4rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .form-input, .form-textarea {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      color: var(--text-main);
+      font-family: inherit;
+      font-size: 0.9rem;
+      transition: var(--transition);
+      outline: none;
+    }
+
+    .form-input:focus, .form-textarea:focus {
+      border-color: var(--accent-cyan);
+      box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.15);
+    }
+
+    .form-hint {
+      font-size: 0.74rem;
+      color: var(--text-muted);
+      margin-top: 0.35rem;
+    }
+
+    /* Auth Alerts */
+    .auth-alert {
+      padding: 0.75rem 1rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.82rem;
+      margin-bottom: 1.25rem;
+      display: none;
+      animation: fadeIn 0.2s ease-in;
+    }
+
+    .auth-alert-error {
+      background: rgba(244, 63, 94, 0.12);
+      border: 1px solid rgba(244, 63, 94, 0.3);
+      color: #fda4af;
+    }
+
+    .auth-alert-success {
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      color: #6ee7b7;
+    }
+
+    /* Dashboard Layout */
+    .hero-panel {
+      background: linear-gradient(180deg, rgba(26, 35, 51, 0.6) 0%, rgba(17, 24, 39, 0.6) 100%);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 2.25rem 2rem;
+      margin-bottom: 2rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-title {
+      font-size: 1.85rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      margin-bottom: 0.5rem;
+      background: linear-gradient(135deg, #ffffff 30%, #cbd5e1 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-desc {
+      color: var(--text-muted);
+      max-width: 680px;
+      font-size: 0.95rem;
+      line-height: 1.6;
+      margin-bottom: 1.5rem;
+    }
+
+    .search-box-row {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .search-wrapper {
+      position: relative;
+      flex: 1;
+      min-width: 280px;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 0.75rem 1rem 0.75rem 2.75rem;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      color: var(--text-main);
+      font-family: inherit;
+      font-size: 0.9rem;
+      outline: none;
+      transition: var(--transition);
+    }
+
+    .search-input:focus {
+      border-color: var(--accent-cyan);
+      box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.15);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 0.9rem;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 18px;
+      height: 18px;
+      fill: var(--text-muted);
+      pointer-events: none;
+    }
+
+    .filter-pills {
+      display: flex;
+      gap: 0.5rem;
+      background: var(--bg-surface);
+      padding: 4px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-subtle);
+    }
+
+    .filter-btn {
+      padding: 0.45rem 0.9rem;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      font-weight: 600;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .filter-btn.active {
+      background: var(--bg-surface-elevated);
+      color: #ffffff;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.5rem;
+    }
+
+    .section-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .resource-counter {
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-subtle);
+      color: var(--accent-cyan);
+      padding: 0.15rem 0.6rem;
+      border-radius: 9999px;
+      font-size: 0.78rem;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* Grid & Cards */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: var(--transition);
+      position: relative;
+    }
+
+    .card:hover {
+      border-color: rgba(255, 255, 255, 0.2);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    }
+
+    .card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 0.75rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .card-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      line-height: 1.4;
+      word-break: break-word;
+    }
+
+    .badge {
+      padding: 0.25rem 0.6rem;
+      border-radius: 9999px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .badge-approved {
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--accent-emerald);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .badge-pending {
+      background: rgba(245, 158, 11, 0.15);
+      color: var(--accent-amber);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+
+    .badge-rejected {
+      background: rgba(244, 63, 94, 0.15);
+      color: var(--accent-rose);
+      border: 1px solid rgba(244, 63, 94, 0.3);
+    }
+
+    .card-desc {
+      color: var(--text-muted);
+      font-size: 0.88rem;
+      line-height: 1.5;
+      margin-bottom: 1.25rem;
+      word-break: break-word;
+    }
+
+    .card-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      border-top: 1px solid var(--border-subtle);
+      padding-top: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .meta-uploader {
+      color: var(--accent-cyan);
+    }
+
+    .card-actions {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 4rem 2rem;
+      color: var(--text-muted);
+      grid-column: 1 / -1;
+      background: var(--bg-surface);
+      border-radius: var(--radius-md);
+      border: 1px dashed var(--border-subtle);
+    }
+
+    /* Modal */
+    .modal-backdrop {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(8px);
+      z-index: 100;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+
+    .modal-backdrop.active {
+      display: flex;
+    }
+
+    .modal {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-accent);
+      border-radius: var(--radius-lg);
+      padding: 2rem;
+      max-width: 540px;
+      width: 100%;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+      position: relative;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .modal-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+    }
+
+    .modal-close {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 1.5rem;
+      cursor: pointer;
+      line-height: 1;
+    }
+
+    .modal-close:hover {
+      color: #ffffff;
+    }
+
+    .file-dropzone {
+      border: 2px dashed rgba(255, 255, 255, 0.15);
+      border-radius: var(--radius-sm);
+      padding: 1.5rem;
+      text-align: center;
+      cursor: pointer;
+      background: rgba(255, 255, 255, 0.02);
+      transition: var(--transition);
+    }
+
+    .file-dropzone:hover {
+      border-color: var(--accent-cyan);
+      background: rgba(56, 189, 248, 0.04);
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      padding: 0.85rem 1.4rem;
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-accent);
+      border-radius: var(--radius-sm);
+      color: #ffffff;
+      font-size: 0.88rem;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+      z-index: 200;
+      display: none;
+      animation: slideUp 0.25s ease-out;
+    }
+
+    @keyframes slideUp {
+      from {
+        transform: translateY(20px);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="ambient-glow"></div>
+
+  <!-- Header Navigation -->
+  <header>
+    <div class="nav-container">
+      <a href="#/dashboard" class="brand" onclick="navigateFromBrand(event)">
+        <div class="brand-icon">
+          <svg viewBox="0 0 24 24">
+            <path
+              d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z" />
+          </svg>
+        </div>
+        <div>
+          <div class="brand-title">CloudOps Sentinel</div>
+          <span class="brand-subtitle">Resource Exchange</span>
+        </div>
+      </a>
+
+      <div class="nav-actions">
+        <div class="health-pill" id="healthPill" title="Liveness & Readiness Probes">
+          <div class="health-dot"></div>
+          <span id="healthText">SYS OK</span>
+        </div>
+
+        <!-- Authenticated header controls -->
+        <div id="authHeaderControls" style="display:none; align-items:center; gap:0.75rem;">
+          <div class="user-pill" id="userBadge">
+            <span id="usernameDisplay">user</span>
+            <span class="role-badge" id="roleBadge">User</span>
+          </div>
+
+          <button class="btn btn-primary" id="openUploadBtn" onclick="openUploadModal()">
+            <svg style="width:16px;height:16px;fill:currentColor" viewBox="0 0 24 24">
+              <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
+            </svg>
+            Publish Resource
+          </button>
+
+          <button class="btn btn-secondary" id="logoutBtn" onclick="handleLogout()">Sign Out</button>
+        </div>
+
+        <!-- Unauthenticated header link -->
+        <div id="unauthHeaderControls" style="display:none;">
+          <button class="btn btn-primary" onclick="navigateTo('#/login')">Sign In</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Public Auth View: Login & Registration -->
+  <main id="authView">
+    <div class="auth-card">
+      <div class="auth-header">
+        <div class="auth-header-icon">
+          <svg viewBox="0 0 24 24">
+            <path
+              d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z" />
+          </svg>
+        </div>
+        <h2 class="auth-title" id="authTitle">Platform Authentication</h2>
+        <p class="auth-subtitle" id="authSubtitle">Sign in with your credentials to access protected resources</p>
+      </div>
+
+      <!-- Redirect notice banner -->
+      <div class="redirect-banner" id="redirectBanner">
+        <svg viewBox="0 0 24 24">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+        </svg>
+        <span id="redirectNoticeText">Authentication required to access this resource.</span>
+      </div>
+
+      <!-- Auth Tab Switcher -->
+      <div class="auth-nav-tabs">
+        <button type="button" class="auth-nav-tab active" id="tabLoginBtn" onclick="navigateTo('#/login')">Sign In</button>
+        <button type="button" class="auth-nav-tab" id="tabRegisterBtn" onclick="navigateTo('#/register')">Create Account</button>
+      </div>
+
+      <div id="authAlert" class="auth-alert"></div>
+
+      <!-- Sign In Form -->
+      <form id="loginForm" onsubmit="handleLoginSubmit(event)">
+        <div class="form-group">
+          <label class="form-label" for="loginUsername">Username or Email</label>
+          <input type="text" id="loginUsername" class="form-input" placeholder="admin or member@example.com" value="admin" required autocomplete="username">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="loginPassword">Password</label>
+          <input type="password" id="loginPassword" class="form-input" value="admin123" required autocomplete="current-password">
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem;">
+          <span style="font-size:0.75rem; color:var(--text-muted);">
+            Demo accounts: <strong>admin</strong> (admin123)
+          </span>
+          <a href="javascript:void(0)" onclick="navigateTo('#/register')" style="color:var(--accent-cyan); font-size:0.8rem; text-decoration:none; font-weight:600;">Create account</a>
+        </div>
+        <button type="submit" class="btn btn-primary" id="loginSubmitBtn" style="width:100%; padding:0.8rem;">
+          Sign In to Dashboard
+        </button>
+      </form>
+
+      <!-- Registration Form -->
+      <form id="registerForm" onsubmit="handleRegisterSubmit(event)" style="display:none;">
+        <div class="form-group">
+          <label class="form-label" for="regUsername">Username</label>
+          <input type="text" id="regUsername" class="form-input" placeholder="Choose username (e.g. cloud_dev)" required autocomplete="username">
+          <div class="form-hint">3-80 characters (letters, numbers, hyphens, underscores)</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="regEmail">Email Address</label>
+          <input type="email" id="regEmail" class="form-input" placeholder="name@domain.com" required autocomplete="email">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="regPassword">Password</label>
+          <input type="password" id="regPassword" class="form-input" placeholder="Create secure password" required autocomplete="new-password">
+          <div class="form-hint">Minimum 8 characters with letters and numbers</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="regConfirmPassword">Confirm Password</label>
+          <input type="password" id="regConfirmPassword" class="form-input" placeholder="Repeat password" required autocomplete="new-password">
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem;">
+          <span style="font-size:0.75rem; color:var(--text-muted);">
+            Already have an account?
+          </span>
+          <a href="javascript:void(0)" onclick="navigateTo('#/login')" style="color:var(--accent-cyan); font-size:0.8rem; text-decoration:none; font-weight:600;">Sign in here</a>
+        </div>
+        <button type="submit" class="btn btn-primary" id="regSubmitBtn" style="width:100%; padding:0.8rem;">
+          Complete Registration
+        </button>
+      </form>
+    </div>
+  </main>
+
+  <!-- Protected Dashboard View -->
+  <main id="dashboardView">
+    <section class="hero-panel">
+      <h1 class="hero-title">Protected Resource Exchange</h1>
+      <p class="hero-desc">
+        Browse verified cloud blueprints, architecture guides, and infrastructure templates. Securely streams through AWS S3 and automated CloudOps Sentinel policy enforcement.
+      </p>
+
+      <div class="search-box-row">
+        <div class="search-wrapper">
+          <svg class="search-icon" viewBox="0 0 24 24">
+            <path
+              d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
+          </svg>
+          <input type="text" id="searchInput" class="search-input" placeholder="Search resources by title or keyword..."
+            oninput="handleSearch(this.value)">
+        </div>
+
+        <div class="filter-pills" id="adminFilterPills" style="display:none;">
+          <button class="filter-btn active" id="filterApprovedBtn" onclick="setStatusFilter('approved')">Approved</button>
+          <button class="filter-btn" id="filterPendingBtn" onclick="setStatusFilter('pending')">Pending</button>
+          <button class="filter-btn" id="filterRejectedBtn" onclick="setStatusFilter('rejected')">Rejected</button>
+          <button class="filter-btn" id="filterAllBtn" onclick="setStatusFilter('all')">All</button>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-header">
+      <div class="section-title">
+        Available Resources
+        <span class="resource-counter" id="resourceCount">0</span>
+      </div>
+    </div>
+
+    <!-- Cards Grid -->
+    <div class="grid" id="resourceGrid">
+      <div class="empty-state">Loading secure resources...</div>
+    </div>
+  </main>
+
+  <!-- Upload Modal (Authenticated Only) -->
+  <div class="modal-backdrop" id="uploadModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title">Publish Digital Resource</h3>
+        <button class="modal-close" onclick="closeUploadModal()">&times;</button>
+      </div>
+      <form id="uploadForm" onsubmit="handleUploadSubmit(event)">
+        <div class="form-group">
+          <label class="form-label" for="uploadTitle">Resource Title</label>
+          <input type="text" id="uploadTitle" class="form-input" placeholder="e.g. Terraform AWS Architecture Blueprint" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="uploadDescription">Description</label>
+          <textarea id="uploadDescription" class="form-textarea" rows="3" placeholder="Overview of the resource contents..."></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Resource File (Streams directly to S3)</label>
+          <div class="file-dropzone" onclick="document.getElementById('uploadFile').click()">
+            <div id="dropzoneText">Click to select file</div>
+            <input type="file" id="uploadFile" style="display:none;" onchange="updateFileLabel(this)" required>
+          </div>
+        </div>
+        <div style="display:flex; justify-content:flex-end; gap:0.75rem; margin-top:1.5rem;">
+          <button type="button" class="btn btn-secondary" onclick="closeUploadModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="uploadSubmitBtn">Upload & Publish</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Edit Resource Modal (Owner or Admin) -->
+  <div class="modal-backdrop" id="editModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title">Edit Resource Metadata</h3>
+        <button class="modal-close" onclick="closeEditModal()">&times;</button>
+      </div>
+      <form id="editForm" onsubmit="handleEditSubmit(event)">
+        <input type="hidden" id="editResourceId">
+        <div class="form-group">
+          <label class="form-label" for="editTitle">Resource Title</label>
+          <input type="text" id="editTitle" class="form-input" placeholder="e.g. Terraform AWS Architecture Blueprint" required maxlength="200">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="editDescription">Description</label>
+          <textarea id="editDescription" class="form-textarea" rows="4" placeholder="Overview of the resource contents..."></textarea>
+        </div>
+        <div style="display:flex; justify-content:flex-end; gap:0.75rem; margin-top:1.5rem;">
+          <button type="button" class="btn btn-secondary" onclick="closeEditModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="editSubmitBtn">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div class="toast" id="toastNotification"></div>
+
+  <script>
+    // State management
+    let authToken = localStorage.getItem('sentinel_token') || null;
+    let currentUser = JSON.parse(localStorage.getItem('sentinel_user') || 'null');
+    let includeUnapproved = false;
+    let searchDebounceTimeout = null;
+    let isVerifyingSession = false;
+
+    // Toast helper
+    function showToast(msg, isError = false) {
+      const toast = document.getElementById('toastNotification');
+      toast.textContent = msg;
+      toast.style.borderColor = isError ? 'var(--accent-rose)' : 'var(--accent-emerald)';
+      toast.style.display = 'block';
+      setTimeout(() => { toast.style.display = 'none'; }, 4000);
+    }
+
+    // Auth Alert Banner helper
+    function setAuthAlert(msg, isError = true) {
+      const alertBox = document.getElementById('authAlert');
+      if (!msg) {
+        alertBox.style.display = 'none';
+        alertBox.textContent = '';
+        return;
+      }
+      alertBox.textContent = msg;
+      alertBox.className = `auth-alert ${isError ? 'auth-alert-error' : 'auth-alert-success'}`;
+      alertBox.style.display = 'block';
+    }
+
+    // Client-side Navigation helper
+    function navigateTo(hash) {
+      if (window.location.hash === hash) {
+        handleRoute();
+      } else {
+        window.location.hash = hash;
+      }
+    }
+
+    function navigateFromBrand(e) {
+      e.preventDefault();
+      if (authToken) {
+        navigateTo('#/dashboard');
+      } else {
+        navigateTo('#/login');
+      }
+    }
+
+    // Clear client-side authentication session
+    function clearSession() {
+      localStorage.removeItem('sentinel_token');
+      localStorage.removeItem('sentinel_user');
+      authToken = null;
+      currentUser = null;
+      includeUnapproved = false;
+
+      // Clear protected DOM data immediately to protect against back-button leaks
+      const grid = document.getElementById('resourceGrid');
+      if (grid) grid.innerHTML = '';
+      const counter = document.getElementById('resourceCount');
+      if (counter) counter.textContent = '0';
+    }
+
+    // Verify session integrity with backend /auth/me
+    async function verifySession() {
+      if (!authToken) return false;
+      try {
+        const res = await fetch('/auth/me', {
+          headers: { 'Authorization': `Bearer ${authToken}` }
+        });
+        if (res.ok) {
+          const profile = await res.json();
+          currentUser = profile;
+          localStorage.setItem('sentinel_user', JSON.stringify(profile));
+          return true;
+        } else {
+          // Token expired, invalid, or malformed
+          clearSession();
+          return false;
+        }
+      } catch (e) {
+        console.warn('Network error during session validation:', e);
+        // Retain local session if transient network error, or clear if unauthorized
+        return !!authToken;
+      }
+    }
+
+    // Core Router: Controls view visibility and route protection
+    async function handleRoute() {
+      const rawHash = window.location.hash || '';
+      const cleanHash = rawHash.split('?')[0].toLowerCase();
+
+      // Protected routes: #/dashboard, #/resources, or root /
+      const isPublicRoute = (cleanHash === '#/login' || cleanHash === '#/register');
+      const authView = document.getElementById('authView');
+      const dashboardView = document.getElementById('dashboardView');
+      const authHeaderControls = document.getElementById('authHeaderControls');
+      const unauthHeaderControls = document.getElementById('unauthHeaderControls');
+      const redirectBanner = document.getElementById('redirectBanner');
+
+      // Check authentication state
+      if (!authToken) {
+        // Unauthenticated visitor
+        authHeaderControls.style.display = 'none';
+        unauthHeaderControls.style.display = 'block';
+        dashboardView.style.display = 'none';
+
+        if (!isPublicRoute) {
+          // Attempting to access protected page without login -> save intended destination
+          if (cleanHash && cleanHash !== '#' && cleanHash !== '#/' && cleanHash !== '#/dashboard') {
+            sessionStorage.setItem('sentinel_redirect', cleanHash);
+          }
+          window.location.hash = '#/login';
+          return;
+        }
+
+        // Show Auth View
+        authView.style.display = 'flex';
+        const pendingRedirect = sessionStorage.getItem('sentinel_redirect');
+        if (pendingRedirect) {
+          redirectBanner.style.display = 'flex';
+        } else {
+          redirectBanner.style.display = 'none';
+        }
+
+        const isLogin = cleanHash !== '#/register';
+        document.getElementById('tabLoginBtn').classList.toggle('active', isLogin);
+        document.getElementById('tabRegisterBtn').classList.toggle('active', !isLogin);
+        document.getElementById('loginForm').style.display = isLogin ? 'block' : 'none';
+        document.getElementById('registerForm').style.display = isLogin ? 'none' : 'block';
+        document.getElementById('authTitle').textContent = isLogin ? 'Platform Authentication' : 'Create an Account';
+        document.getElementById('authSubtitle').textContent = isLogin ? 'Sign in with your credentials to access protected resources' : 'Join CloudOps Sentinel to publish and exchange resources';
+        setAuthAlert(null);
+
+      } else {
+        // Authenticated user
+        if (isPublicRoute) {
+          // Already authenticated, forward to saved destination or dashboard
+          const destination = sessionStorage.getItem('sentinel_redirect') || '#/dashboard';
+          sessionStorage.removeItem('sentinel_redirect');
+          window.location.hash = destination;
+          return;
+        }
+
+        // Render Dashboard View
+        authView.style.display = 'none';
+        dashboardView.style.display = 'block';
+        authHeaderControls.style.display = 'flex';
+        unauthHeaderControls.style.display = 'none';
+
+        // Update user badge in header
+        document.getElementById('usernameDisplay').textContent = currentUser?.username || 'member';
+        const roleBadge = document.getElementById('roleBadge');
+        if (currentUser?.is_admin) {
+          roleBadge.textContent = 'Admin';
+          roleBadge.className = 'role-badge role-admin';
+          document.getElementById('adminFilterPills').style.display = 'flex';
+        } else {
+          roleBadge.textContent = 'User';
+          roleBadge.className = 'role-badge role-user';
+          document.getElementById('adminFilterPills').style.display = 'none';
+        }
+
+        loadResources(document.getElementById('searchInput').value);
+      }
+    }
+
+    // Logout implementation
+    async function handleLogout() {
+      try {
+        if (authToken) {
+          await fetch('/auth/logout', {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${authToken}` }
+          });
+        }
+      } catch (err) {
+        console.warn('Logout notification error:', err);
+      } finally {
+        clearSession();
+        sessionStorage.removeItem('sentinel_redirect');
+        showToast('Signed out successfully');
+        navigateTo('#/login');
+      }
+    }
+
+    // Health and probe check
+    async function checkHealth() {
+      try {
+        const [healthRes, readyRes] = await Promise.all([
+          fetch('/health'),
+          fetch('/ready')
+        ]);
+        const healthOk = healthRes.ok;
+        const readyOk = readyRes.ok;
+        const pill = document.getElementById('healthPill');
+        const text = document.getElementById('healthText');
+
+        if (healthOk && readyOk) {
+          text.textContent = 'SYS OK (RDS 100%)';
+          pill.style.background = 'rgba(16, 185, 129, 0.1)';
+          pill.style.color = 'var(--accent-emerald)';
+        } else {
+          text.textContent = 'DEGRADED';
+          pill.style.background = 'rgba(244, 63, 94, 0.15)';
+          pill.style.color = 'var(--accent-rose)';
+        }
+      } catch (e) {
+        document.getElementById('healthText').textContent = 'OFFLINE';
+      }
+    }
+
+    // Sign In Submit
+    async function handleLoginSubmit(e) {
+      e.preventDefault();
+      setAuthAlert(null);
+      const u = document.getElementById('loginUsername').value.trim();
+      const p = document.getElementById('loginPassword').value;
+      const submitBtn = document.getElementById('loginSubmitBtn');
+
+      if (!u || !p) {
+        setAuthAlert('Please enter both username/email and password', true);
+        return;
+      }
+
+      submitBtn.textContent = 'Signing in...';
+      submitBtn.disabled = true;
+
+      try {
+        const res = await fetch('/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username: u, password: p })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          authToken = data.token;
+          currentUser = data.user;
+          localStorage.setItem('sentinel_token', authToken);
+          localStorage.setItem('sentinel_user', JSON.stringify(currentUser));
+
+          showToast(`Welcome back, ${currentUser.username}!`);
+
+          // Restore intended page
+          const redirectTarget = sessionStorage.getItem('sentinel_redirect') || '#/dashboard';
+          sessionStorage.removeItem('sentinel_redirect');
+          navigateTo(redirectTarget);
+        } else {
+          const errMsg = data.error || 'Authentication failed. Please verify credentials.';
+          setAuthAlert(errMsg, true);
+          showToast(errMsg, true);
+        }
+      } catch (err) {
+        setAuthAlert('Connection error during authentication. Please retry.', true);
+      } finally {
+        submitBtn.textContent = 'Sign In to Dashboard';
+        submitBtn.disabled = false;
+      }
+    }
+
+    // Register Submit
+    async function handleRegisterSubmit(e) {
+      e.preventDefault();
+      setAuthAlert(null);
+
+      const username = document.getElementById('regUsername').value.trim();
+      const email = document.getElementById('regEmail').value.trim();
+      const password = document.getElementById('regPassword').value;
+      const confirmPassword = document.getElementById('regConfirmPassword').value;
+      const submitBtn = document.getElementById('regSubmitBtn');
+
+      if (!username || !email || !password || !confirmPassword) {
+        setAuthAlert('All fields are required', true);
+        return;
+      }
+
+      if (username.length < 3 || username.length > 80 || !/^[a-zA-Z0-9_-]+$/.test(username)) {
+        setAuthAlert('Username must be 3-80 characters and contain only letters, numbers, underscores, or hyphens', true);
+        return;
+      }
+
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        setAuthAlert('Please enter a valid email address format', true);
+        return;
+      }
+
+      if (password.length < 8) {
+        setAuthAlert('Password must be at least 8 characters long', true);
+        return;
+      }
+
+      if (!(/[a-zA-Z]/.test(password) && /[0-9]/.test(password))) {
+        setAuthAlert('Password must contain both letters and numbers', true);
+        return;
+      }
+
+      if (password !== confirmPassword) {
+        setAuthAlert('Passwords do not match', true);
+        return;
+      }
+
+      submitBtn.textContent = 'Creating Account...';
+      submitBtn.disabled = true;
+
+      try {
+        const res = await fetch('/auth/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, email, password })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          // Switch to login tab and pre-fill username
+          navigateTo('#/login');
+          document.getElementById('loginUsername').value = username;
+          document.getElementById('loginPassword').value = '';
+          document.getElementById('registerForm').reset();
+          setAuthAlert('Account created successfully! Please sign in with your credentials.', false);
+          showToast(`Account @${username} registered!`);
+        } else {
+          setAuthAlert(data.error || 'Registration failed', true);
+        }
+      } catch (err) {
+        setAuthAlert('Connection error during registration. Please retry.', true);
+      } finally {
+        submitBtn.textContent = 'Complete Registration';
+        submitBtn.disabled = false;
+      }
+    }
+
+    // Modal controllers
+    function openUploadModal() {
+      if (!authToken) {
+        showToast('Please sign in to publish resources', true);
+        navigateTo('#/login');
+        return;
+      }
+      document.getElementById('uploadModal').classList.add('active');
+    }
+
+    function closeUploadModal() {
+      document.getElementById('uploadModal').classList.remove('active');
+      document.getElementById('uploadForm').reset();
+      document.getElementById('dropzoneText').textContent = 'Click to select file';
+    }
+
+    function updateFileLabel(input) {
+      if (input.files && input.files[0]) {
+        document.getElementById('dropzoneText').textContent = 'Selected: ' + input.files[0].name;
+      }
+    }
+
+    // Search and filter
+    function handleSearch(val) {
+      clearTimeout(searchDebounceTimeout);
+      searchDebounceTimeout = setTimeout(() => {
+        loadResources(val);
+      }, 250);
+    }    let currentStatusFilter = 'approved';
+
+    function setStatusFilter(status) {
+      currentStatusFilter = status;
+      ['filterApprovedBtn', 'filterPendingBtn', 'filterRejectedBtn', 'filterAllBtn'].forEach(id => {
+        const btn = document.getElementById(id);
+        if (btn) btn.classList.remove('active');
+      });
+      if (status === 'approved' && document.getElementById('filterApprovedBtn')) {
+        document.getElementById('filterApprovedBtn').classList.add('active');
+      } else if (status === 'pending' && document.getElementById('filterPendingBtn')) {
+        document.getElementById('filterPendingBtn').classList.add('active');
+      } else if (status === 'rejected' && document.getElementById('filterRejectedBtn')) {
+        document.getElementById('filterRejectedBtn').classList.add('active');
+      } else if (status === 'all' && document.getElementById('filterAllBtn')) {
+        document.getElementById('filterAllBtn').classList.add('active');
+      }
+      loadResources(document.getElementById('searchInput').value);
+    }
+
+    function setAdminFilter(showAll) {
+      setStatusFilter(showAll ? 'all' : 'approved');
+    }
+
+    // Load Resources with Bearer token
+    async function loadResources(query = '') {
+      if (!authToken) {
+        handleRoute();
+        return;
+      }
+
+      const grid = document.getElementById('resourceGrid');
+      const counter = document.getElementById('resourceCount');
+
+      let url = `/resources?limit=50`;
+      if (query.trim()) {
+        url += `&query=${encodeURIComponent(query.trim())}`;
+      }
+      if (currentUser?.is_admin) {
+        if (currentStatusFilter && currentStatusFilter !== 'all') {
+          url += `&status=${encodeURIComponent(currentStatusFilter)}`;
+        } else if (currentStatusFilter === 'all') {
+          url += `&include_unapproved=true`;
+        }
+      }
+
+      try {
+        const res = await fetch(url, {
+          headers: { 'Authorization': `Bearer ${authToken}` }
+        });
+
+        if (res.status === 401) {
+          // Token expired or invalid
+          clearSession();
+          showToast('Session expired. Please sign in again.', true);
+          navigateTo('#/login');
+          return;
+        }
+
+        const data = await res.json();
+        const items = Array.isArray(data) ? data : (data.items || []);
+        const total = Array.isArray(data) ? data.length : (data.total !== undefined ? data.total : items.length);
+
+        counter.textContent = total;
+
+        if (items.length === 0) {
+          grid.innerHTML = `<div class="empty-state">No resources found${query ? ` matching "${escapeHtml(query)}"` : ''}.</div>`;
+          return;
+        }
+
+        grid.innerHTML = items.map(r => {
+          const isOwner = currentUser && (currentUser.id === r.uploaded_by);
+          const isAdmin = currentUser && currentUser.is_admin;
+          const canDelete = isOwner || isAdmin;
+          const status = r.status || (r.approved ? 'approved' : 'pending');
+
+          let badgeClass = 'badge-pending';
+          let badgeText = 'Pending Review';
+          if (status === 'approved') {
+            badgeClass = 'badge-approved';
+            badgeText = 'Approved';
+          } else if (status === 'rejected') {
+            badgeClass = 'badge-rejected';
+            badgeText = 'Rejected';
+          }
+
+          return `
+            <div class="card" id="resource-card-${r.id}">
+              <div>
+                <div class="card-top">
+                  <h3 class="card-title">${escapeHtml(r.title)}</h3>
+                  <span class="badge ${badgeClass}">
+                    ${badgeText}
+                  </span>
+                </div>
+                <p class="card-desc">${escapeHtml(r.description || 'No description provided.')}</p>
+              </div>
+
+              <div>
+                <div class="card-meta">
+                  <span>By: <strong class="meta-uploader">${escapeHtml(r.uploader_username)}</strong></span>
+                  <span>${r.created_at ? new Date(r.created_at).toLocaleDateString() : 'Recent'}</span>
+                </div>
+
+                <div class="card-actions">
+                  ${r.download_url ? `
+                    <a href="${r.download_url}" target="_blank" class="btn btn-secondary" style="flex:1;">
+                      <svg style="width:14px;height:14px;fill:currentColor" viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+                      Download (S3)
+                    </a>
+                  ` : `
+                    <button class="btn btn-secondary" style="flex:1;" disabled title="Download unavailable">Stored on S3</button>
+                  `}
+
+                  ${(status === 'pending' && isAdmin) ? `
+                    <button class="btn btn-approve" onclick="approveResource(${r.id})">Approve</button>
+                    <button class="btn btn-reject" onclick="rejectResource(${r.id})">Reject</button>
+                  ` : ''}
+
+                  ${(status === 'approved' && isAdmin) ? `
+                    <button class="btn btn-reject" onclick="rejectResource(${r.id})">Reject</button>
+                  ` : ''}
+
+                  ${(status === 'rejected' && isAdmin) ? `
+                    <button class="btn btn-approve" onclick="approveResource(${r.id}, true)">Reactivate</button>
+                  ` : ''}
+
+                  ${canDelete ? `
+                    <button class="btn btn-edit" onclick="openEditModal(${r.id}, '${escapeJs(r.title)}', '${escapeJs(r.description || '')}')">Edit</button>
+                    <button class="btn btn-delete" onclick="deleteResource(${r.id}, '${escapeJs(r.title)}')">Delete</button>
+                  ` : ''}
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('');
+
+      } catch (err) {
+        grid.innerHTML = '<div class="empty-state">Error connecting to resource exchange backend.</div>';
+      }
+    }
+
+    // Approve endpoint (Admin only)
+    async function approveResource(id, reactivate = false) {
+      if (!authToken) return;
+      try {
+        const options = {
+          method: 'PATCH',
+          headers: {
+            'Authorization': `Bearer ${authToken}`,
+            ...(reactivate ? { 'Content-Type': 'application/json' } : {})
+          }
+        };
+        if (reactivate) {
+          options.body = JSON.stringify({ reactivate: true });
+        }
+        const res = await fetch(`/resources/${id}/approve`, options);
+        if (res.ok) {
+          showToast(reactivate ? `Resource #${id} reactivated & approved!` : `Resource #${id} approved!`);
+          loadResources(document.getElementById('searchInput').value);
+        } else {
+          const d = await res.json();
+          showToast(d.error || 'Approval failed', true);
+        }
+      } catch (e) {
+        showToast('Approval request failed', true);
+      }
+    }
+
+    // Reject endpoint (Admin only)
+    async function rejectResource(id) {
+      if (!authToken) return;
+      if (!confirm(`Are you sure you want to reject resource #${id}?`)) return;
+      try {
+        const res = await fetch(`/resources/${id}/reject`, {
+          method: 'PATCH',
+          headers: { 'Authorization': `Bearer ${authToken}` }
+        });
+        if (res.ok) {
+          showToast(`Resource #${id} marked as rejected.`);
+          loadResources(document.getElementById('searchInput').value);
+        } else {
+          const d = await res.json();
+          showToast(d.error || 'Rejection failed', true);
+        }
+      } catch (e) {
+        showToast('Reject request failed', true);
+      }
+    }
+
+    // Edit Metadata Modal controllers
+    function openEditModal(id, title, desc) {
+      document.getElementById('editResourceId').value = id;
+      document.getElementById('editTitle').value = title;
+      document.getElementById('editDescription').value = desc || '';
+      document.getElementById('editModal').classList.add('active');
+    }
+
+    function closeEditModal() {
+      document.getElementById('editModal').classList.remove('active');
+      document.getElementById('editForm').reset();
+    }
+
+    async function handleEditSubmit(e) {
+      e.preventDefault();
+      if (!authToken) return;
+
+      const id = document.getElementById('editResourceId').value;
+      const title = document.getElementById('editTitle').value.trim();
+      const desc = document.getElementById('editDescription').value.trim();
+      const submitBtn = document.getElementById('editSubmitBtn');
+
+      if (!title) {
+        showToast('Resource title cannot be empty', true);
+        return;
+      }
+
+      submitBtn.textContent = 'Saving...';
+      submitBtn.disabled = true;
+
+      try {
+        const res = await fetch(`/resources/${id}`, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bearer ${authToken}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ title, description: desc })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          showToast(`Resource #${id} updated successfully!`);
+          closeEditModal();
+          loadResources(document.getElementById('searchInput').value);
+        } else {
+          showToast(data.error || 'Failed to update resource metadata', true);
+        }
+      } catch (err) {
+        showToast('Update network error', true);
+      } finally {
+        submitBtn.textContent = 'Save Changes';
+        submitBtn.disabled = false;
+      }
+    }
+
+    // Delete endpoint (Owner or Admin)
+    async function deleteResource(id, title) {
+      if (!authToken) return;
+      if (!confirm(`Are you sure you want to delete resource "${title}"? This cannot be undone.`)) return;
+      try {
+        const res = await fetch(`/resources/${id}`, {
+          method: 'DELETE',
+          headers: { 'Authorization': `Bearer ${authToken}` }
+        });
+        if (res.ok) {
+          showToast(`Resource "${title}" deleted.`);
+          loadResources(document.getElementById('searchInput').value);
+        } else {
+          const d = await res.json();
+          showToast(d.error || 'Delete failed', true);
+        }
+      } catch (e) {
+        showToast('Delete request failed', true);
+      }
+    }
+
+    // Upload submit
+    async function handleUploadSubmit(e) {
+      e.preventDefault();
+      if (!authToken) {
+        showToast('Authentication required', true);
+        navigateTo('#/login');
+        return;
+      }
+
+      const title = document.getElementById('uploadTitle').value.trim();
+      const desc = document.getElementById('uploadDescription').value.trim();
+      const fileInput = document.getElementById('uploadFile');
+
+      if (!fileInput.files[0]) {
+        showToast('Please select a file', true);
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('title', title);
+      formData.append('description', desc);
+      formData.append('file', fileInput.files[0]);
+
+      const submitBtn = document.getElementById('uploadSubmitBtn');
+      submitBtn.textContent = 'Streaming to S3...';
+      submitBtn.disabled = true;
+
+      try {
+        const res = await fetch('/resources', {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${authToken}` },
+          body: formData
+        });
+
+        const data = await res.json();
+        if (res.ok) {
+          showToast('Resource uploaded and queued for review!');
+          closeUploadModal();
+          loadResources();
+        } else {
+          showToast(data.error || 'Upload failed', true);
+        }
+      } catch (err) {
+        showToast('Upload network error', true);
+      } finally {
+        submitBtn.textContent = 'Upload & Publish';
+        submitBtn.disabled = false;
+      }
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function escapeJs(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/\\/g, '\\\\')
+        .replace(/'/g, "\\'")
+        .replace(/"/g, '&quot;')
+        .replace(/\n/g, '\\n')
+        .replace(/\r/g, '');
+    }
+
+    // Browser navigation and Back button guards
+    window.addEventListener('hashchange', handleRoute);
+    window.addEventListener('popstate', handleRoute);
+    window.addEventListener('pageshow', (event) => {
+      // Re-verify session on back-forward cache restoration
+      handleRoute();
+    });
+
+    // Initialize application
+    (async function init() {
+      checkHealth();
+      setInterval(checkHealth, 15000);
+
+      if (authToken) {
+        const valid = await verifySession();
+        if (!valid) {
+          clearSession();
+        }
+      }
+      handleRoute();
+    })();
+  </script>
+</body>
+
+</html>
